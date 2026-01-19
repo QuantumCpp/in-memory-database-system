@@ -1,2 +1,10 @@
-build/
+# Binarios
+*.o
+*.out
+*.exe
+*.a
+*.so
 
+# Carpetas de build
+build/
+cmake-build-*/
