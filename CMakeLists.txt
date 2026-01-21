@@ -19,4 +19,7 @@ if(ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
   target_link_options(c-files PRIVATE -fsanitize=address,undefined)
 
 endif()
+#install(TARGETS c-files
+# RUNTIME DESTINATION bin
+#)
 
