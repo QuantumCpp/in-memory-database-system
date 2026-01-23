@@ -38,13 +38,15 @@ std::vector<Token> Tokenization(std::vector<std::string> args){
         }
         continue;
       }
+
       if(arg.size() > 2 && !StartWith(arg,"--")){
-        if(pos != std::string::npos){
-          tokens.emplace_back(Token{TypeToken::OptionGroup, arg.substr(0, pos), arg.substr(pos + 1)});
-          continue;
-        }
-        if (pos == std::string::npos){
-          tokens.emplace_back(Token{TypeToken::OptionGroup, arg, ""});
+        for(const auto& element : arg){
+          std::string str = "";
+          if(element == '-'){
+            continue;
+          }
+          str.push_back(element);
+          tokens.emplace_back(Token{TypeToken::Option, "-" + str, ""});
           continue;
         }
       }

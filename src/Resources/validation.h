@@ -5,6 +5,7 @@ ValidationError Validation(std::vector<Token>& tokens){
   for (size_t i = 0 ; i < tokens.size() ; i ++){
     Token token = tokens[i];
     
+    //Comando en posicion incorrecta
     if (i == 0){
       if(tokens[i].type != TypeToken::Command){
         return ValidationError::CommandIncorrectPosition;
@@ -28,7 +29,6 @@ ValidationError Validation(std::vector<Token>& tokens){
         {
           continue;
         }
-
          if (OptionSpec.at(token.name) == ValuePolicy::None && token.value != "") {return ValidationError::OptionNotRequiredValue; } 
          if (OptionSpec.at(token.name) == ValuePolicy::Required && token.value == "") {return ValidationError::OptionRequiredValue; }
       }

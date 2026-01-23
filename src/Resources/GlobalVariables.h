@@ -11,7 +11,6 @@ enum class TypeToken{
   Command,
   Option,
   Separation,
-  OptionGroup,
   Positional
 };
 
