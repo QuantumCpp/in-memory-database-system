@@ -19,6 +19,15 @@ enum class ValuePolicy{
   Optional
 };
 
+enum class ValidationError{
+  AllCorrect,
+  CommandIncorrectPosition,
+  CommandNotFound,
+  OptionNotFound,
+  OptionRequiredValue,
+  OptionNotRequiredValue
+} ;
+
 struct Token{
   TypeToken type;
   std::string name;
@@ -33,23 +42,12 @@ void list(std::vector<std::string> arg){
 
 }
 
-int main(int argc, const char* argv[] ){
-  std::vector<std::string> arguments(argv + 1 , argv + argc);
+std::vector<Token> Tokenization(std::vector<std::string> args){
+  std::vector<std::string> arguments = args;
   std::vector<Token> tokens;
 
   bool OptionOnlyPositional = false;
   bool CommandFound = false;
-
-  std::unordered_map<std::string,ValuePolicy> CommandSpec = {
-    {"list" , ValuePolicy::Optional}
-  };
-  std::unordered_map<std::string,ValuePolicy> OptionSpec = {
-    {"--extension", ValuePolicy::Required},
-    {"-e" , ValuePolicy::Optional},
-    {"-s" , ValuePolicy::Optional},
-    {"-d" , ValuePolicy::Optional},
-
-  };
 
   for(size_t i = 0 ; i < arguments.size() ; i++){
     const std::string& args = arguments[i];
@@ -82,9 +80,21 @@ int main(int argc, const char* argv[] ){
         }
         continue;
       }
+      if(args.size() > 2 && !StartWith(args,"--")){
+        for(const auto& element :args){
+          if(element == '-'){
+            continue;
+          }
+          std::string str = "";
+          str.push_back(element);
+          tokens.emplace_back(Token{TypeToken::Option, "-"+str,"" });
+        }
+      }
 
-      tokens.emplace_back(Token{TypeToken::Option, args, ""});
-      continue;
+      if(args.size() == 2 && !StartWith(args,"--")){
+        tokens.emplace_back(Token{TypeToken::Option, args, ""});
+        continue;
+      }
     }
 
     if ((OptionOnlyPositional || !StartWith(args,"-")) && CommandFound){
@@ -92,12 +102,72 @@ int main(int argc, const char* argv[] ){
       continue;
     }
   }
-  if(CommandFound == false){
-    std::cout<<"Commmand not found\n";
+  return tokens;
+
+}
+
+ValidationError Validation(std::vector<Token>& tokens){
+
+  std::unordered_map<std::string,ValuePolicy> CommandSpec = {
+    {"list" , ValuePolicy::None}
+  };
+  std::unordered_map<std::string,ValuePolicy> OptionSpec = {
+    {"--extension", ValuePolicy::Required},
+    {"-e" , ValuePolicy::Optional},
+    {"-s" , ValuePolicy::Optional},
+    {"-d" , ValuePolicy::Optional},
+
+  };
+
+  
+  for (size_t i = 0 ; i < tokens.size() ; i ++){
+    Token token = tokens[i];
+    
+    if (i == 0){
+      if(tokens[i].type != TypeToken::Command){
+        return ValidationError::CommandIncorrectPosition;
+      }
+    }
+
+    //Validar que un comando existe : 
+    if (token.type == TypeToken::Command){
+      if (CommandSpec.find(token.name) != CommandSpec.end()){
+        continue;
+      }
+      else{
+        return ValidationError::CommandNotFound;
+      }
+    }
+
+    if(token.type == TypeToken::Option){
+      if (OptionSpec.find(token.name)  != OptionSpec.end()){
+        if((OptionSpec.at(token.name) == ValuePolicy::None && token.value == "") ||  
+            (OptionSpec.at(token.name) == ValuePolicy::Required && token.value != ""))
+        {
+          continue;
+        }
+
+         if (OptionSpec.at(token.name) == ValuePolicy::None && token.value != "") {return ValidationError::OptionNotRequiredValue; } 
+         if (OptionSpec.at(token.name) == ValuePolicy::Required && token.value == "") {return ValidationError::OptionRequiredValue; }
+      }
+      else{
+        return ValidationError::OptionNotFound;
+      }
+    }
+
   }
-  else{
-    std::cout<<"Command found\n";
-  }
+
+
+  return ValidationError::AllCorrect;
+}
+
+int main(int argc, const char* argv[] ){
+  std::vector<std::string> arguments(argv + 1 , argv + argc);
+  std::vector<Token> tokens;
+  
+  tokens = Tokenization(arguments);
+
   return 0;
 }
+
 
