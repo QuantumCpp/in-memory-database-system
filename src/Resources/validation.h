@@ -1,4 +1,8 @@
+#pragma once
+
 #include "GlobalVariables.h"
+#include "TokenType.h"
+#include "Spec.h"
 
 ValidationError Validation(std::vector<Token>& tokens){
   
