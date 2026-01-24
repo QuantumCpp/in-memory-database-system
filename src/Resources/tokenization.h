@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GlobalVariables.h"
-#include "TokenType.h"
+#include "TokenTypeStruct.h"
 #include "utils.h"
 
 std::vector<Token> Tokenization(std::vector<std::string> args){

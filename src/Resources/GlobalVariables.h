@@ -14,7 +14,10 @@ enum class ValidationError{
   CommandNotFound,
   OptionNotFound,
   OptionRequiredValue,
-  OptionNotRequiredValue
+  OptionNotRequiredValue,
+  MoreOfCommand,
+  MoreSeparationSignal
 } ;
+
 
 

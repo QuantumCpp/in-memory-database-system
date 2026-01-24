@@ -1,11 +1,17 @@
 #pragma once
 
 #include "GlobalVariables.h"
-#include "TokenType.h"
-#include "Spec.h"
+#include "TokenTypeStruct.h"
+#include "SpecsStruct.h"
+#include <unordered_map>
 
 ValidationError Validation(std::vector<Token>& tokens){
   
+  int CommandFound = 0;
+  int CantSeparationFound = 0;
+  bool SeparationFound = false;
+  std::unordered_map<std::string ,int>SeenOption;
+
   for (size_t i = 0 ; i < tokens.size() ; i ++){
     Token token = tokens[i];
     
@@ -16,9 +22,13 @@ ValidationError Validation(std::vector<Token>& tokens){
       }
     }
 
-    //Validar que un comando existe : 
+    //Validar que un comando existe y solo hay uno : 
     if (token.type == TypeToken::Command){
       if (CommandSpec.find(token.name) != CommandSpec.end()){
+        CommandFound += 1;
+        if (CommandFound > 1){
+          return ValidationError::MoreOfCommand;
+        }
         continue;
       }
       else{
@@ -27,10 +37,19 @@ ValidationError Validation(std::vector<Token>& tokens){
     }
     
     if(token.type == TypeToken::Option){
+
+      if (SeenOption[token.name]){
+        tokens.erase(tokens.begin() + i);
+        --i;
+        continue;
+      }
+
       if (OptionSpec.find(token.name)  != OptionSpec.end()){
+
         if((OptionSpec.at(token.name) == ValuePolicy::None && token.value == "") ||  
             (OptionSpec.at(token.name) == ValuePolicy::Required && token.value != ""))
         {
+          SeenOption[token.name] = true;
           continue;
         }
          if (OptionSpec.at(token.name) == ValuePolicy::None && token.value != "") {return ValidationError::OptionNotRequiredValue; } 
@@ -41,8 +60,21 @@ ValidationError Validation(std::vector<Token>& tokens){
       }
     }
 
-  }
+    if(token.type == TypeToken::Separation){
+      SeparationFound = true;
+      CantSeparationFound++;
+      continue;
+    }
 
+    if (SeparationFound == true && CantSeparationFound == 1){
+      tokens[i].type = TypeToken::Positional;
+    }
+
+    if (CantSeparationFound > 1){
+      return ValidationError::MoreSeparationSignal;
+    }
+
+  }
 
   return ValidationError::AllCorrect;
 }
