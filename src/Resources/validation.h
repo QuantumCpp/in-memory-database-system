@@ -1,8 +1,6 @@
 #pragma once
 
 #include "GlobalVariables.h"
-#include "TokenTypeStruct.h"
-#include "SpecsStruct.h"
 #include <unordered_map>
 
 ValidationError Validation(std::vector<Token>& tokens){

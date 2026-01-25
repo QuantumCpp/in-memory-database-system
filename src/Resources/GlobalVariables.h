@@ -6,18 +6,24 @@
 #include <vector>
 #include <iostream>
 #include <filesystem> 
+#include "EnumsGlobal.h"
 
+const std::unordered_map<std::string,ValuePolicy> CommandSpec = {
+    {"list" , ValuePolicy::None}
+  };
+const std::unordered_map<std::string,ValuePolicy> OptionSpec = {
+    {"--extension", ValuePolicy::Required},
+    {"-e" , ValuePolicy::None},
+    {"-s" , ValuePolicy::None},
+    {"-d" , ValuePolicy::None},
 
-enum class ValidationError{
-  AllCorrect,
-  CommandIncorrectPosition,
-  CommandNotFound,
-  OptionNotFound,
-  OptionRequiredValue,
-  OptionNotRequiredValue,
-  MoreOfCommand,
-  MoreSeparationSignal
-} ;
+  };
+
+struct Token{
+  TypeToken type;
+  std::string name;
+  std::string value; //solo si es una OptionWithValue
+};
 
 
 
