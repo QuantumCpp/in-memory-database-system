@@ -11,8 +11,10 @@
 const std::unordered_map<std::string,ValuePolicy> CommandSpec = {
     {"list" , ValuePolicy::None}
   };
+
 const std::unordered_map<std::string,ValuePolicy> OptionSpec = {
     {"--extension", ValuePolicy::Required},
+    {"-r" , ValuePolicy::None},
     {"-e" , ValuePolicy::None},
     {"-s" , ValuePolicy::None},
     {"-d" , ValuePolicy::None},
