@@ -27,5 +27,15 @@ struct Token{
   std::string value; //solo si es una OptionWithValue
 };
 
+struct TokenGroup{
+  std::vector<Token> command;
+  std::vector<Token> option;
+  std::vector<Token> separation;
+  std::vector<Token> positional;
+};
 
+struct GroupDataValidation{
+  ValidationError Error;
+  std::string SpecificError;
+};
 

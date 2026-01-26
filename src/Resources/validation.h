@@ -1,13 +1,18 @@
 #pragma once
 
+#include "EnumsGlobal.h"
 #include "GlobalVariables.h"
+#include <string>
 #include <unordered_map>
+#include "OrderTokens.h"
 
-ValidationError Validation(std::vector<Token>& tokens){
+
+GroupDataValidation Validation(std::vector<Token>& tokens, TokenGroup& GpToken){
   
   int CommandFound = 0;
   int CantSeparationFound = 0;
   bool SeparationFound = false;
+  GroupDataValidation DataValidaton;
 
   std::unordered_map<std::string ,int>SeenOption;
 
@@ -17,7 +22,9 @@ ValidationError Validation(std::vector<Token>& tokens){
     //Comando en posicion incorrecta
     if (i == 0){
       if(tokens[i].type != TypeToken::Command){
-        return ValidationError::CommandIncorrectPosition;
+        DataValidaton.Error = ValidationError::CommandIncorrectPosition;
+        DataValidaton.SpecificError = "Comando en posicion incorrecta: " + std::to_string(i) + "\n";
+        return DataValidaton;
       }
     }
 
@@ -26,18 +33,22 @@ ValidationError Validation(std::vector<Token>& tokens){
       if (CommandSpec.find(token.name) != CommandSpec.end()){
         CommandFound += 1;
         if (CommandFound > 1){
-          return ValidationError::MoreOfCommand;
+          DataValidaton.Error = ValidationError::MoreOfCommand;
+          DataValidaton.SpecificError = "Mas de un comando introducido\n";
+          return DataValidaton;
         }
         continue;
       }
       else{
-        return ValidationError::CommandNotFound;
+        DataValidaton.Error = ValidationError::CommandNotFound;
+        DataValidaton.SpecificError = "Comando " + token.name + " No encontrado\n";
+        return DataValidaton;
       }
     }
     
     if(token.type == TypeToken::Option){
 
-      if (SeenOption[token.name]){
+      if (SeenOption.find(token.name) != SeenOption.end()){
         tokens.erase(tokens.begin() + i);
         --i;
         continue;
@@ -48,20 +59,26 @@ ValidationError Validation(std::vector<Token>& tokens){
         if((OptionSpec.at(token.name) == ValuePolicy::None && token.value == "") ||  
             (OptionSpec.at(token.name) == ValuePolicy::Required && token.value != ""))
         {
-          SeenOption[token.name] = true;
+          SeenOption[token.name] = 1;
           continue;
         }
          if (OptionSpec.at(token.name) == ValuePolicy::None && token.value != "") 
          {
-           return ValidationError::OptionNotRequiredValue; 
+           DataValidaton.Error = ValidationError::OptionNotRequiredValue;
+           DataValidaton.SpecificError = "Opcion " + token.name + " No requiere valor\n";
+           return DataValidaton; 
          } 
          if (OptionSpec.at(token.name) == ValuePolicy::Required && token.value == "") 
          {
-           return ValidationError::OptionRequiredValue; 
+           DataValidaton.Error = ValidationError::OptionRequiredValue;
+           DataValidaton.SpecificError = "Opcion " + token.name + " requiere valor\n";
+           return DataValidaton; 
          }
       }
       else{
-        return ValidationError::OptionNotFound;
+        DataValidaton.Error = ValidationError::OptionNotFound;
+        DataValidaton.SpecificError = "Opcion " + token.name + " no encontrada\n";
+        return DataValidaton;
       }
     }
 
@@ -76,11 +93,16 @@ ValidationError Validation(std::vector<Token>& tokens){
     }
 
     if (CantSeparationFound > 1){
-      return ValidationError::MoreSeparationSignal;
+      DataValidaton.Error = ValidationError::MoreSeparationSignal;
+      DataValidaton.SpecificError = "Mas de un comando de separacion (--) introducido\n";
+      return DataValidaton;
     }
 
   }
-
-  return ValidationError::AllCorrect;
+  
+  GroupToken(tokens, GpToken);
+  DataValidaton.Error = ValidationError::AllCorrect;
+  DataValidaton.SpecificError = " ";
+  return DataValidaton;
 }
 
