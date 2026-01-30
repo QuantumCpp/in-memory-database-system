@@ -2,6 +2,13 @@
 #include <cwchar>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <iostream>
-#include <filesystem> 
+#include <filesystem>
+#include <cstdlib>
+#include <stdexcept>
+#include <algorithm>
+#include <charconv>
+#include <system_error>
+

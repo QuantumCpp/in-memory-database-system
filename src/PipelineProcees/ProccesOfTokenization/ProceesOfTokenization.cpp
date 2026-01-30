@@ -6,50 +6,49 @@ std::vector<Token> Tokenization(const std::vector<std::string>& args){
   bool OnlyPositionArguments = false;
 
   for(size_t i = 0 ; i < args.size() ; i++){
-    std::string arguments = args[i];
+    std::string Arguments = args[i];
     
-    if(arguments == "c-files"){
+    //ignorar argumentos del tipo ""
+    if(Arguments.empty()){
       continue;
-    }
+    } 
 
-    if(arguments.empty()){
-      continue;
-    }
-
-    //Comprobacion si solo se aceptaran argumentos posicionales
-    if(arguments == "--"){
-      OnlyPositionArguments = true;
-      continue;
-    }
-
-    //Comprobacion del comando principal en la posicion 0
-    if(i == 0 && !CommandFound && !OnlyPositionArguments && !StartWith(arguments,"-")){
-      token.emplace_back(Token{TypeToken::Command , arguments , ""});
+    //Guardar el primer elemento (sin importar cual sea) como comando
+    if(!CommandFound && !OnlyPositionArguments && !StartWith(Arguments,"-")){
+      token.emplace_back(Token{TypeToken::Command , Arguments , ""});
       CommandFound = true;
       continue;
     }
 
-    if(StartWith(arguments, "-") && !OnlyPositionArguments){
+    //Comprobacion si solo se aceptaran argumentos posicionales
+    if(Arguments == "--"){
+      token.emplace_back(Token{TypeToken::Separation, Arguments, ""});
+      OnlyPositionArguments = true;
+      continue;
+    }
+    
+    //Idendificar de forma general los options largos y cortos
+    if(StartWith(Arguments, "-") && !OnlyPositionArguments){
       //Tratamiento para opciones con valor especificado
-      if(StartWith(arguments,"--")){
-        auto equal = arguments.find("=");
+      if(StartWith(Arguments,"--")){
+        auto EqualPos = Arguments.find("=");
         
         //Si el argumento posee un simbolo de igual se extrae y se copia el nombre de la opcion, mas el valor especificado 
-        if(equal != std::string::npos){
-          token.emplace_back(Token{TypeToken::Option , arguments.substr(0 , equal) , arguments.substr(equal + 1)});
+        if(EqualPos != std::string::npos){
+          token.emplace_back(Token{TypeToken::Option , Arguments.substr(0 , EqualPos) , Arguments.substr(EqualPos + 1)});
           continue;
         }
         
         //Si el argumento es un opcion larga sin valor adjunto con un signo de igual tambien se guarda pero con un valor string ""
         else{
-          token.emplace_back(Token{TypeToken::Option, arguments, ""});
+          token.emplace_back(Token{TypeToken::Option, Arguments, ""});
           continue;
         }
       }
 
       //Separacion de opciones cortas aninadas (-abc) en tokens diferentes
-      if(arguments.size() > 2 && !StartWith(arguments, "--")){
-        for(const auto& element : arguments){
+      if(Arguments.size() > 2 && !StartWith(Arguments, "--")){
+        for(const auto& element : Arguments){
           if(element == '-'){
             continue;
           }
@@ -60,14 +59,14 @@ std::vector<Token> Tokenization(const std::vector<std::string>& args){
         continue;
       }
 
-      //Tokenizacion de flags (-a) 
-      token.emplace_back(Token{TypeToken::Option , arguments, ""});
+      //Tokenizacion de flags (-a) u opcion larga sin valor (--help) 
+      token.emplace_back(Token{TypeToken::Option , Arguments, ""});
       continue;
 
     }
 
     //Tokenizacion de argumentos posicionales
-    token.emplace_back(Token{TypeToken::Positional, arguments, ""});
+    token.emplace_back(Token{TypeToken::Positional, Arguments, ""});
 
   }
 

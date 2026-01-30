@@ -2,7 +2,7 @@
 #include "../EnumsClass/ValidationError.h"
 #include "../GeneralLibraries/GeneralLibraries.h"
 
-struct GroupDataValidation{
+struct DataError{
   ValidationError Error;
   std::string SpecificError;
 };

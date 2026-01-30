@@ -19,6 +19,7 @@ void RegisterAllOptions() {
   all.value_policy = ValuePolicy::None;
   all.value_type = ValueType::None;
   all.default_name = "--all";
+  all.conflicts_with = {"--extension"};
   RegisterOption(all);
 
   OptionMetaData extension;
@@ -42,7 +43,7 @@ void RegisterAllOptions() {
   maxSize.names = {"--max-size"};
   maxSize.description = "Filtra archivos con tamaño máximo";
   maxSize.value_policy = ValuePolicy::Required;
-  maxSize.value_type = ValueType::Number;
+  maxSize.value_type = ValueType::Integer;
   maxSize.default_name = "--max-size";
   RegisterOption(maxSize);
 
@@ -94,7 +95,7 @@ void RegisterAllOptions() {
   simpleFormat.value_policy = ValuePolicy::None;
   simpleFormat.value_type = ValueType::None;
   simpleFormat.default_name = "--simple";
-  simpleFormat.conflicts_with = {"-l", "--long"};
+  simpleFormat.conflicts_with = {"--long"};
   RegisterOption(simpleFormat);
 }
 
