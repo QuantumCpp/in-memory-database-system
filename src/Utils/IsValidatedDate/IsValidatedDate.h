@@ -1,3 +1,4 @@
+#pragma once
 #include "../../SystemUtilites/GeneralLibraries/GeneralLibraries.h"
 #include <regex.h>
 #include <regex>
