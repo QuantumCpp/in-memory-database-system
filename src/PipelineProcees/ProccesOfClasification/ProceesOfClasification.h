@@ -7,4 +7,4 @@
 #include "../../SystemUtilites/CommandRegister/CommandRegister.h"
 #include "../../Utils/IsValidatedDate/IsValidatedDate.h"
 
-DataError ClasificationDataToken(std::vector<Token>& tokens, TokenGroup& GpToken);
+ValidationError ClasificationDataToken(std::vector<Token>& tokens, TokenGroup& GpToken);
