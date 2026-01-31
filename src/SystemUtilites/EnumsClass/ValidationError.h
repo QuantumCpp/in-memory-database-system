@@ -14,7 +14,8 @@ enum class ValidationError {
     MultipleCommands = 12,             // More than one command specified
     CommandNotFound = 13,              // Command doesn't exist in registry
     CommandIncorrectPosition = 14,     // Command not in first position
-    
+    CommandNotImplemented = 100,  
+
     // Option Errors (21-40)
     OptionNotFound = 21,               // Option doesn't exist for this command
     OptionForWrongCommand = 22,        // Option exists but not for this command
